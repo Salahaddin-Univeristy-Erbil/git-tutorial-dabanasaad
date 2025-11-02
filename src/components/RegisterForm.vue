@@ -11,21 +11,44 @@
         <!-- Register Form -->
         <form @submit.prevent="register" class="space-y-4">
           <input
-            v-model="username"
+            v-model="name"
             type="text"
-            placeholder="Username"
+            placeholder="Name"
+            required
             class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
           <input
             v-model="email"
             type="email"
             placeholder="Email"
+            required
             class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
+
+          <!-- Gender Selection -->
+          <select
+            v-model="gender"
+            required
+            class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="" disabled>Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+
           <input
             v-model="password"
             type="password"
             placeholder="Password"
+            required
+            class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+          <input
+            v-model="password_confirmation"
+            type="password"
+            placeholder="Confirm Password"
+            required
             class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
           <button
@@ -53,26 +76,68 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useUserStore } from '../stores/userStore';
+import { authService } from '../services/api';
+import { useToast } from '../composables/useToast';
 
 const router = useRouter();
-const userStore = useUserStore();
+const { success, error } = useToast();
 
-const username = ref('');
+const name = ref('');
 const email = ref('');
+const gender = ref('');
 const password = ref('');
+const password_confirmation = ref('');
 
-const register = () => {
-  if (!username.value.trim() || !email.value.trim() || !password.value.trim()) return;
+const register = async () => {
+  // Validation
+  if (
+    !name.value.trim() ||
+    !email.value.trim() ||
+    !gender.value ||
+    !password.value.trim() ||
+    !password_confirmation.value.trim()
+  ) {
+    error('Please fill in all fields');
+    return;
+  }
 
-  const dummyId = Math.random().toString(36).substring(2, 10);
-  userStore.setUser(dummyId, username.value.trim());
+  if (password.value !== password_confirmation.value) {
+    error('Passwords do not match');
+    return;
+  }
 
-  router.push('/chat'); // redirect to chat after registering
+  if (password.value.length < 8) {
+    error('Password must be at least 8 characters');
+    return;
+  }
+
+  try {
+    // Call API - loading spinner shows automatically
+    const data = await authService.register({
+      name: name.value,
+      email: email.value,
+      gender: gender.value,
+      password: password.value,
+      password_confirmation: password_confirmation.value,
+    });
+
+    // Save token and user
+    localStorage.setItem('token', data.access_token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+
+    // Show success message
+    success('Registration successful!');
+
+    // Redirect to chat
+    router.push('/chat');
+  } catch (err) {
+    // Error toast shows automatically from interceptor
+    console.error('Registration failed:', err);
+  }
 };
 
 const goToLogin = () => {
-  router.push('/'); // navigate back to login page
+  router.push('/');
 };
 </script>
 

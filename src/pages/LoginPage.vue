@@ -11,17 +11,30 @@
         <!-- Login Form -->
         <form @submit.prevent="login" class="space-y-4">
           <input
-            v-model="username"
-            type="text"
-            placeholder="Username"
+            v-model="email"
+            type="email"
+            placeholder="Email"
+            required
             class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
           <input
             v-model="password"
             type="password"
             placeholder="Password"
+            required
             class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
+
+          <!-- Remember Me -->
+          <label class="flex items-center space-x-2 text-gray-700">
+            <input
+              type="checkbox"
+              v-model="remember"
+              class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+            />
+            <span>Remember me</span>
+          </label>
+
           <button
             type="submit"
             class="w-full bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-700 transition"
@@ -49,25 +62,39 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useUserStore } from '../stores/userStore';
+import { authService } from '../services/api';
+import { useToast } from '../composables/useToast';
 
 const router = useRouter();
-const userStore = useUserStore();
+const { success, error } = useToast();
 
-const username = ref('');
+const email = ref('');
 const password = ref('');
+const remember = ref(false);
 
-const login = () => {
-  if (!username.value.trim() || !password.value.trim()) return;
+const login = async () => {
+  if (!email.value.trim() || !password.value.trim()) {
+    error('Please fill in all fields');
+    return;
+  }
 
-  const dummyId = Math.random().toString(36).substring(2, 10);
-  userStore.setUser(dummyId, username.value.trim());
+  try {
+    // ✅ Calls authService.login which handles CSRF cookie
+    const data = await authService.login(email.value, password.value, remember.value);
 
-  router.push('/chat'); // redirect to chat page after login
+    // Save user info in localStorage
+    localStorage.setItem('user', JSON.stringify(data.user));
+
+    success('Login successful!');
+    router.push('/chat');
+  } catch (err: any) {
+    console.error('Login failed:', err.response ? err.response.data : err.message);
+    error(err.response?.data?.message || 'Login failed');
+  }
 };
 
 const goToRegister = () => {
-  router.push('/register'); // navigate to register page
+  router.push('/register');
 };
 </script>
 
