@@ -21,16 +21,16 @@ Many teams and friends need a simple, lightweight chat application to communicat
 
 ## User Stories
 
-1. As a user, I want to register with a username, password, and email.
-2. As a user, I want to login using my credentials.
-3. As a user, I want to see a list of friends and groups in a sidebar.
-4. As a user, I want to select a friend or group to see the chat conversation.
-5. As a user, I want to send a message to a friend.
-6. As a user, I want to send a message to a group chat.
-7. As a user, I want to see who sent each message.
-8. As a user, I want to logout and return to the login page.
-9. As a user, I want to change my avatar (stub).
-10. As a user, I want the app to have a responsive and visually clean interface.
+As a new visitor, I want to register with a unique username, secure password (min 8 characters), and valid email address, so I can create my account.
+As a registered user, I want to login using my username/email and password with "Remember me" option, so I can quickly access my account.
+As a registered user, I want to update my profile picture (JPG, PNG, max 5MB), so I can personalize my account.
+As a logged-in user, I want to logout with a confirmation prompt, so I can securely end my session.
+As a user, I want to see my friends list and group chats in a sidebar, so I can navigate to conversations quickly.
+As a user, I want to search for and add friends by username, so I can connect with people I know.
+As a group admin, I want to create a group chat and add members, so I can organize team discussions.
+As a group member, I want to see who else is in the group, so I know who will receive my messages.
+As a user, I want to receive messages in real-time without refreshing, so conversations feel natural.
+As a user, I want the app to have a responsive and visually clean interface.
 
 ## Non-Goals
 
